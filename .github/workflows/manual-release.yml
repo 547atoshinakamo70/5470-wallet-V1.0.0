@@ -1,0 +1,53 @@
+name: Manual Release (Electron)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión (ej: 1.0.1)"
+        required: true
+      publish_tag:
+        description: "Crear y empujar tag v<versión>"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: { os: [ubuntu-latest, windows-latest, macos-latest] }
+
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Bump version en electron/package.json
+        run: |
+          node -e "const fs=require('fs');const p='./electron/package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${{ inputs.version }}';fs.writeFileSync(p, JSON.stringify(j,null,2));"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add electron/package.json
+          git commit -m "ci: bump version to v${{ inputs.version }}"
+
+      - name: Crear y empujar tag (opcional)
+        if: ${{ inputs.publish_tag == 'true' }}
+        run: |
+          git tag v${{ inputs.version }}
+          git push origin HEAD:main
+          git push origin v${{ inputs.version }}
+
+      - name: Instalar deps
+        working-directory: electron
+        run: npm ci
+
+      - name: Build & Publish a GitHub Releases
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run ci:build
