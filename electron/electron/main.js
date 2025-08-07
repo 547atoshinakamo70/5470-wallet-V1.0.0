@@ -17,7 +17,7 @@ function findPython() {
   return process.platform === 'win32' ? 'python.exe' : 'python3';
 }
 
-async function waitFor(url, timeoutMs = 20000) {
+async function waitFor(url, timeoutMs = 30000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
@@ -78,12 +78,10 @@ app.whenReady().then(async () => {
 
   const py = findPython();
   spawnChain(py);
-  const okChain = await waitFor('http://localhost:5000/health', 30000);
-  if (!okChain) console.warn('chain health timeout');
+  await waitFor('http://localhost:5000/health', 30000);
 
   spawnWallet(py);
-  const okWallet = await waitFor('http://localhost:8001', 30000);
-  if (!okWallet) console.warn('wallet server timeout');
+  await waitFor('http://localhost:8001', 30000);
 
   await createWindow();
 });
