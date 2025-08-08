@@ -1,7 +1,7 @@
 {
   "name": "5470-wallet",
-  "version": "1.0.1",
-  "description": "5470 Professional Wallet (Electron) with embedded Python node",
+  "version": "1.0.3",
+  "description": "5470 Professional Wallet (Electron) launching your Python node/UI",
   "main": "main.js",
   "author": "5470",
   "license": "MIT",
@@ -12,24 +12,14 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "nsis": {
-  "oneClick": true,
-  "perMachine": false,
-  "allowToChangeInstallationDirectory": false,
-  "createDesktopShortcut": "always",
-  "createStartMenuShortcut": true,
-  "shortcutName": "5470 Wallet",
-  "runAfterFinish": true
-}
-
     "ci:build": "electron-builder -p always"
   },
   "dependencies": {
-    "electron": "^31.0.0",
-    "node-fetch": "^3.3.2",
-    "electron-updater": "^6.1.8"
+    "electron-updater": "^6.1.8",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
+    "electron": "^31.7.7",
     "electron-builder": "^24.13.3"
   },
   "build": {
@@ -38,21 +28,52 @@
     "files": [
       "**/*",
       "../blockchain_5470_synced_ai_zk.py",
-      "../wallet.py",
+      "../wallet_5470_pro_with_ai_zk.py",
+      "../launch_5470_pro.py",
+      "../README.md",
       "../chain_data.json",
       "../balances.json",
       "../private_notes.json",
       "../.env"
     ],
-    "extraResources": [
-      { "from": "../python/", "to": "python", "filter": ["**/*"] }
-    ],
-    "directories": { "buildResources": "build" },
-    "win":   { "target": ["nsis"], "artifactName": "5470-Wallet-Setup.${ext}" },
-    "mac":   { "category": "public.app-category.finance", "target": ["dmg"], "artifactName": "5470-Wallet.${ext}" },
-    "linux": { "target": ["deb"],  "category": "Finance", "artifactName": "5470-Wallet.${ext}" },
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "5470-Wallet-Setup.${ext}"
+    },
+    "mac": {
+      "category": "public.app-category.finance",
+      "target": [
+        "dmg"
+      ],
+      "artifactName": "5470-Wallet.${ext}"
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "category": "Finance",
+      "artifactName": "5470-Wallet.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "5470 Wallet",
+      "runAfterFinish": true
+    },
     "publish": [
-      { "provider": "github", "owner": "547atoshinakamo70", "repo": "5470-wallet-V1.0.0" }
+      {
+        "provider": "github",
+        "owner": "547atoshinakamo70",
+        "repo": "5470-wallet-V1.0.0"
+      }
     ]
   }
 }
