@@ -16,3 +16,9 @@ yarn-error.log*
 
 # Entornos/secretos
 .env
+# Node/Electron
+node_modules/
+electron/node_modules/
+electron/dist/
+dist/
+out/
