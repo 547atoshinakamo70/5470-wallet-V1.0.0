@@ -4,10 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Versión (ej: 1.0.4)"
+        description: "Version (e.g., 1.0.7)"
         required: true
       publish_tag:
-        description: "Crear y empujar tag v<versión>"
+        description: "Create and push tag v<version>"
+        required: true
         type: boolean
         default: true
 
@@ -15,9 +16,8 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  win:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Bump version en electron/package.json
+      - name: Bump version in electron/package.json
         shell: bash
         run: |
           node -e "const fs=require('fs');const p='electron/package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${{ inputs.version }}';fs.writeFileSync(p, JSON.stringify(j,null,2));"
@@ -36,7 +36,7 @@ jobs:
           git add electron/package.json
           git commit -m "ci: bump version to v${{ inputs.version }}" || echo "no changes"
 
-      - name: Crear y empujar tag (opcional)
+      - name: Create and push tag (optional)
         if: ${{ inputs.publish_tag == 'true' }}
         shell: bash
         run: |
@@ -44,10 +44,11 @@ jobs:
           git push origin HEAD
           git push origin v${{ inputs.version }} || echo "tag push skipped"
 
-      - name: Instalar deps
+      - name: Install deps
         working-directory: electron
+        shell: pwsh
         run: |
-          npm ci || npm install
+          if (Test-Path package-lock.json) { npm ci } else { npm install }
 
       - name: Build & Publish (Windows)
         working-directory: electron
