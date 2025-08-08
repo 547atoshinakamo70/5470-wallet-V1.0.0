@@ -1,0 +1,52 @@
+name: Upload Release Assets and Update Download Links
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload-and-update-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Si los instaladores ya están listos en el repo, omite la compilación aquí
+
+      - name: Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: path/to/tu-app.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload EXE
+        uses: softprops/action-gh-release@v2
+        with:
+          files: path/to/tu-app.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload AppImage
+        uses: softprops/action-gh-release@v2
+        with:
+          files: path/to/tu-app.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update download links in README
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          APK_LINK="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/tu-app.apk"
+          EXE_LINK="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/tu-app.exe"
+          APPIMAGE_LINK="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/tu-app.AppImage"
+
+          sed -i "/<!--APK_LINK_START-->/, /<!--APK_LINK_END-->/c\\<!--APK_LINK_START-->\\n[Descargar para Android (APK)](${APK_LINK})\\n<!--APK_LINK_END-->" README.md
+          sed -i "/<!--EXE_LINK_START-->/, /<!--EXE_LINK_END-->/c\\<!--EXE_LINK_START-->\\n[Descargar para Windows (EXE)](${EXE_LINK})\\n<!--EXE_LINK_END-->" README.md
+          sed -i "/<!--APPIMAGE_LINK_START-->/, /<!--APPIMAGE_LINK_END-->/c\\<!--APPIMAGE_LINK_START-->\\n[Descargar para Linux (AppImage)](${APPIMAGE_LINK})\\n<!--APPIMAGE_LINK_END-->" README.md
+
+      - name: Commit and push updated README
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Actualiza enlaces de descarga tras nueva release
+          file_pattern: README.md
