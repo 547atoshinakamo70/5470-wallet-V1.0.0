@@ -1,0 +1,45 @@
+{
+  "name": "5470-wallet",
+  "version": "1.0.0",
+  "description": "5470 Professional Wallet (Electron) with embedded Python node",
+  "main": "main.js",
+  "author": "5470",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "ci:build": "electron-builder -p always"
+  },
+  "dependencies": {
+    "electron": "^31.0.0",
+    "node-fetch": "^3.3.2",
+    "electron-updater": "^6.1.8"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "productName": "5470 Wallet",
+    "appId": "es.blockchain5470.wallet",
+    "files": [
+      "**/*",
+      "../blockchain_5470_synced_ai_zk.py",
+      "../wallet.py",
+      "../chain_data.json",
+      "../balances.json",
+      "../private_notes.json",
+      "../.env"
+    ],
+    "extraResources": [
+      { "from": "../python/", "to": "python", "filter": ["**/*"] }
+    ],
+    "directories": { "buildResources": "build" },
+    "win": { "target": ["nsis"], "artifactName": "5470-Wallet-Setup.${ext}" },
+    "mac": { "category": "public.app-category.finance", "target": ["dmg"], "artifactName": "5470-Wallet.${ext}" },
+    "linux": { "target": ["deb"], "category": "Finance", "artifactName": "5470-Wallet.${ext}" },
+    "publish": [
+      { "provider": "github", "owner": "547atoshinakamo70", "repo": "5470-wallet-V1.0.0" }
+    ]
+  }
+}
+
