@@ -35,6 +35,7 @@ function spawnPython(pyPath) {
 
 async function createWindow() {
   const win = new BrowserWindow({ width: 1100, height: 800, webPreferences: { contextIsolation: true }});
+  await waitFor('http://localhost:8001', 30000);
   await win.loadURL('http://localhost:8001');
 }
 
@@ -57,7 +58,6 @@ app.whenReady().then(async () => {
   setupAutoUpdater(); autoUpdater.checkForUpdatesAndNotify();
   const py = findPython();
   spawnPython(py);
-  await waitFor('http://localhost:8001', 30000);
   await createWindow();
 });
 
