@@ -43,3 +43,8 @@ electron/node_modules/
 electron/dist/
 dist/
 out/
+dist/
+electron/dist/
+electron/node_modules/
+node_modules/
+out/
