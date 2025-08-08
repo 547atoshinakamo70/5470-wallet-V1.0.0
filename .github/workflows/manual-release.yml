@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Versión (ej: 1.0.1)"
+        description: "Versión (ej: 1.0.4)"
         required: true
       publish_tag:
         description: "Crear y empujar tag v<versión>"
@@ -16,37 +16,40 @@ permissions:
 
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix: { os: [ubuntu-latest, windows-latest, macos-latest] }
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with:
+          node-version: 20
 
       - name: Bump version en electron/package.json
+        shell: bash
         run: |
-          node -e "const fs=require('fs');const p='./electron/package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${{ inputs.version }}';fs.writeFileSync(p, JSON.stringify(j,null,2));"
+          node -e "const fs=require('fs');const p='electron/package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${{ inputs.version }}';fs.writeFileSync(p, JSON.stringify(j,null,2));"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add electron/package.json
-          git commit -m "ci: bump version to v${{ inputs.version }}"
+          git commit -m "ci: bump version to v${{ inputs.version }}" || echo "no changes"
 
       - name: Crear y empujar tag (opcional)
         if: ${{ inputs.publish_tag == 'true' }}
+        shell: bash
         run: |
-          git tag v${{ inputs.version }}
-          git push origin HEAD:main
-          git push origin v${{ inputs.version }}
+          git tag v${{ inputs.version }} || echo "tag exists"
+          git push origin HEAD
+          git push origin v${{ inputs.version }} || echo "tag push skipped"
 
       - name: Instalar deps
         working-directory: electron
-        run: npm ci
+        run: |
+          npm ci || npm install
 
-      - name: Build & Publish a GitHub Releases
+      - name: Build & Publish (Windows)
         working-directory: electron
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
