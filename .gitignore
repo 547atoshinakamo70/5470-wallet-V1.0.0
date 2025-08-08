@@ -1,0 +1,18 @@
+# Node/Electron
+node_modules/
+electron/node_modules/
+electron/dist/
+dist/
+out/
+
+# Build outputs
+*.exe
+*.dmg
+*.deb
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Entornos/secretos
+.env
