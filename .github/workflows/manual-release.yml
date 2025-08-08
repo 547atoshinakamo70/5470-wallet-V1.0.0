@@ -1,0 +1,27 @@
+name: Manual Release (Electron)
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (e.g., 1.0.9)"
+        required: true
+        default: "1.0.9"
+permissions:
+  contents: write
+jobs:
+  win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Install deps (lockfile or fallback)
+        working-directory: electron
+        shell: pwsh
+        run: |
+          if (Test-Path package-lock.json) { npm ci } else { npm install }
+      - name: Build & Publish (Windows)
+        working-directory: electron
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: npm run ci:build
